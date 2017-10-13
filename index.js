@@ -1,4 +1,4 @@
-const {map, mapValues, reduce} = require('lodash');
+const _ = require('lodash');
 
 const product = {
   id: '001',
@@ -25,39 +25,18 @@ const product = {
   ]
 }
 
-// const products = [product];
-
-const p = {
-  id: product.id,
-  name: product.name,
-}
-
 let attributes = {};
 
-product.variations.forEach((variation) => {
-  // console.log('->', variation.attributes);
 
-  variation.attributes.forEach((att) => {
-    let a = attributes[att.name];
-    if (a) {
-      if (a.values[att.value]) return;
-    } else {
-      a = {
-        name: att.name,
-        values: {}
-      };
-    }
-    a.values[att.value] = {
-      value: att.value
-    };
-    attributes[att.name] = a;
-  })
+let x = _.chain(product.variations).map((v) => (v.attributes))
+.flattenDeep()
+.groupBy('name')
+.mapValues((att) => {
+  return _.chain(att)
+  .map((v) => ({ value: v.value }))
+  .uniqBy('value')
+  .value();
 })
+.value();
 
-console.log('->', JSON.stringify(attributes, null, 2));
-
-
-
-
-
-// console.log('->', p);
+console.log('->', x);
